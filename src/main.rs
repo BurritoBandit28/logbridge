@@ -71,24 +71,23 @@ async fn main() {
 
     let http = Arc::clone(&client.http);
 
-    let mut argument_as_vec = args[1].split(util::get_dir_char()).collect::<Vec<&str>>();
-    let minecraft_server_launch_command = /*&args[2];*/ <&str>::clone(argument_as_vec.last().unwrap());
-    argument_as_vec.remove(argument_as_vec.len() - 1);
-    let minecraft_server_directory = /*args[1].split(get_dir_char()).collect::<Vec<&str>>().join("/");*/ argument_as_vec.join("/");
+    let mut temp : String = "".to_string();
+    for i in 2..args.len() {
+        temp = format!("{}{} ",temp, args[i])
+    }
+    let launch_args = temp.trim();
+    let launch_program = &args[1];
 
-    println!("{}", minecraft_server_launch_command);
+
+    println!("{}",launch_program);
+    println!("{}", launch_args);
 
     //let mut command = Command::new(format!("./{}",minecraft_server_launch_command));
     let mut command: Command;
+    command = Command::new(launch_program);
+    command.args(launch_args.split(" "));
 
-    if env::consts::OS.eq("windows") {
-        command = Command::new("cmd");
-        command.args(["/C", &format!("{}", minecraft_server_launch_command)]);
-    } else {
-        command = Command::new("sh");
-        command.args([minecraft_server_launch_command]);
-    }
-    command.current_dir(&minecraft_server_directory);
+
     command.stdout(Stdio::piped());
     command.stdin(Stdio::piped());
 

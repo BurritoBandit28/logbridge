@@ -773,6 +773,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
+name = "logbridge"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "lazy_static",
+ "regex",
+ "serenity",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -798,18 +810,6 @@ checksum = "f7c44f8e672c00fe5308fa235f821cb4198414e1c77935c1ab6948d3fd78550e"
 dependencies = [
  "mime",
  "unicase",
-]
-
-[[package]]
-name = "minecraft-chat-bot"
-version = "1.0.0"
-dependencies = [
- "dotenv",
- "lazy_static",
- "regex",
- "serenity",
- "tokio",
- "tokio-util",
 ]
 
 [[package]]

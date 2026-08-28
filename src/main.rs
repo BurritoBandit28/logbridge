@@ -2,10 +2,9 @@ mod discord;
 mod minecraft;
 mod util;
 
-use crate::discord::channel_id_val;
+use crate::discord::{channel_id_val, server_ip, should_use_server_icon};
 use crate::minecraft::{chat_send_queue, start_server};
 use discord::MessageHandler;
-use dotenv::dotenv;
 use serenity::Client;
 use serenity::all::{EventHandler, GatewayIntents};
 use std::io::{BufRead, Read, Write};
@@ -13,9 +12,12 @@ use std::ops::Deref;
 use std::process::{Stdio, exit};
 use std::sync::Arc;
 use std::{env, thread};
+use std::path::Path;
+use property_rs::Properties;
 use tokio::io::{self, AsyncBufReadExt, AsyncWriteExt, BufReader as TokioBufReader};
 use tokio::join;
 use tokio::process::Command;
+use tokio_util::io::simplex::new;
 use tokio_util::sync::CancellationToken;
 
 async fn handle_console_input(token: CancellationToken) {
@@ -48,12 +50,38 @@ async fn handle_console_input(token: CancellationToken) {
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
-    let token = env::var("DISCORD_TOKEN");
+
+    let property_path = Path::new("./logbridge.properties");
+
+    let mut properties : Properties;
+
+    if !property_path.exists() {
+        properties = Properties::new();
+        properties.add_set("bot_token","");
+        properties.add_set("channel_id","");
+        properties.add_set("use_server_icon","false");
+        properties.add_set("server_address","");
+        properties.save_to("./logbridge.properties", Some("Logbridge properties")).expect("Failed to create properties file");
+    }
+    else {
+        properties = Properties::from_file("./logbridge.properties").expect("Failed to read properties file");
+    }
+
+    let token = properties.get("bot_token");
     channel_id_val
         .lock()
         .await
-        .set(env::var("CHANNEL_ID").unwrap().parse::<u64>().unwrap());
+        .set(properties.get("channel_id").parse::<u64>().unwrap());
+
+    should_use_server_icon
+        .lock()
+        .await
+        .set(properties.get("use_server_icon").parse::<bool>().unwrap());
+
+    server_ip
+        .lock()
+        .await
+        .set(properties.get("server_address"));
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -64,10 +92,10 @@ async fn main() {
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT;
-    let mut client = Client::builder(token.expect("Failed to read Discord Token"), intents)
+    let mut client = Client::builder(token, intents)
         .event_handler(MessageHandler)
         .await
-        .expect("Err creating client");
+        .expect("Err creating client, has the token been provided?");
 
     let http = Arc::clone(&client.http);
 

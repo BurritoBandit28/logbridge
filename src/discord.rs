@@ -11,6 +11,8 @@ use tokio::sync::Mutex;
 
 lazy_static! {
     pub static ref channel_id_val: Mutex<GetSetWrapper<u64>> = Mutex::new(GetSetWrapper::new());
+    pub static ref should_use_server_icon : Mutex<GetSetWrapper<bool>> = Mutex::new(GetSetWrapper::new());
+    pub static ref server_ip : Mutex<GetSetWrapper<String>> = Mutex::new(GetSetWrapper::new());
 }
 
 pub async fn send_minecraft_embed(http: &Arc<Http>, message: ChatMessage) {
@@ -21,31 +23,40 @@ pub async fn send_minecraft_embed(http: &Arc<Http>, message: ChatMessage) {
         message.get_player()
     ));
 
+    let mut is_server = true;
+
     // base chat colour is discord blurple, all other colours keep the same vibrance with different hues
     // I may adjust saturation
     match message.get_message_type() {
         MessageType::JOIN => {
             embed = embed.colour(Colour::new(0x67f257));
-            embed_author = embed_author.name("Server");
         }
         MessageType::LEAVE => {
             embed = embed.colour(Colour::new(0xf25a57));
-            embed_author = embed_author.name("Server");
         }
         MessageType::DEATH => {
             embed = embed.colour(Colour::new(0x5f5f5f));
-            embed_author = embed_author.name("Server");
         }
         MessageType::CHAT => {
             embed = embed.colour(Colour::new(0x5865f2));
+            is_server = false;
         }
         MessageType::ADVANCEMENT => {
             embed = embed.colour(Colour::new(0xf2f257));
-            embed_author = embed_author.name("Server");
         }
         MessageType::CHALLENGE => {
             embed = embed.colour(Colour::new(0xb257f2));
-            embed_author = embed_author.name("Server");
+        }
+    }
+
+    if is_server {
+        embed_author = embed_author.name("Server");
+
+        let should_use = should_use_server_icon.lock().await.get();
+        let ip = server_ip.lock().await.get();
+
+        if should_use {
+            embed_author= embed_author.icon_url(format!("https://mc-api.io/favicon/{}", ip));
         }
     }
 

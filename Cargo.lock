@@ -950,8 +950,8 @@ dependencies = [
 
 [[package]]
 name = "property-rs"
-version = "0.1.0"
-source = "git+https://github.com/BurritoBandit28/property-rs#7b54977a511ed122168852f4b5d95946e4af9584"
+version = "0.1.1"
+source = "git+https://github.com/BurritoBandit28/property-rs#526d1722042a2cad1eba7521fbe751e8d40cf864"
 dependencies = [
  "chrono",
  "itertools",

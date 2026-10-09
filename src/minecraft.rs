@@ -155,14 +155,17 @@ impl LogParser {
 
             let mut player_name = String::from(&caps[1]);
             let message_text = String::from(&caps[2]);
-            return Some((
-                ChatMessage {
-                    message_type: MessageType::CHAT,
-                    message_text,
-                    player_name,
-                },
-                0,
-            ));
+            let mut player_set = self.connected_players.lock().unwrap();
+            if player_set.contains(&player_name) {
+                return Some((
+                    ChatMessage {
+                        message_type: MessageType::CHAT,
+                        message_text,
+                        player_name,
+                    },
+                    0,
+                ));
+            }
         } else if let Some(caps) = self.joined_regex.captures(&line) {
             let player_name = String::from(&caps[1]);
             let mut player_set = self.connected_players.lock().unwrap();

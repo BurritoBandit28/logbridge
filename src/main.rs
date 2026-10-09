@@ -67,21 +67,21 @@ async fn main() {
         properties = Properties::from_file("./logbridge.properties").expect("Failed to read properties file");
     }
 
-    let token = properties.get("bot_token");
+    let token = properties.get("bot_token").expect("Field \"bot_token\" is missing");
     channel_id_val
         .lock()
         .await
-        .set(properties.get("channel_id").parse::<u64>().unwrap());
+        .set(properties.get("channel_id").expect("Field \"channel_id\" is missing").parse::<u64>().unwrap());
 
     should_use_server_icon
         .lock()
         .await
-        .set(properties.get("use_server_icon").parse::<bool>().unwrap());
+        .set(properties.get("use_server_icon").expect("Field \"use_server_icon\" is missing").parse::<bool>().unwrap());
 
     server_ip
         .lock()
         .await
-        .set(properties.get("server_address"));
+        .set(properties.get("server_address").expect("Field \"server_address\" is missing"));
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {

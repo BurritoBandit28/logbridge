@@ -27,6 +27,7 @@ pub struct LogParser {
     joined_regex: Regex,
     left_regex: Regex,
     advancement_regex: Regex,
+    goal_regex: Regex,
     challenge_regex: Regex,
     death_regex: Regex,
     server_started: Regex,
@@ -74,9 +75,11 @@ impl LogParser {
         //idk
         let chat = Regex::new(r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s*<([^>]+)> (.+)").unwrap();
         let challenge =
-            Regex::new(r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s*\<([A-Za-z-0-9_\-]+).*has completed the challenge ([\[A-Za-z 0-9_\-!.\]]+)").unwrap();
+            Regex::new(r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s*\<([A-Za-z-0-9_\-]+).*has completed the challenge ([\[A-Za-z 0-9_\-!.\]']+)").unwrap();
         let advancement =
-            Regex::new(r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s*\<([A-Za-z-0-9_\-]+).*has made the advancement ([\[A-Za-z 0-9_\-!.\]]+)").unwrap();
+            Regex::new(r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s*\<([A-Za-z-0-9_\-]+).*has made the advancement ([\[A-Za-z 0-9_\-!.\]']+)").unwrap();
+        let goal =
+            Regex::new(r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s*\<([A-Za-z-0-9_\-]+).*has reached the goal ([\[A-Za-z 0-9_\-!.\]']+)").unwrap();
         let joined_game = Regex::new(
             r"^\[[^\]]+\]\s*\[Server thread/INFO\].+\s([A-Za-z-0-9_\-]+) joined the game",
         )
@@ -99,6 +102,7 @@ impl LogParser {
             joined_regex: joined_game,
             left_regex: left_the_game,
             advancement_regex: advancement,
+            goal_regex: goal,
             challenge_regex: challenge,
             death_regex: death,
             server_started: start_logging_indicator,
@@ -190,12 +194,22 @@ impl LogParser {
                 },
                 -1,
             ));
-        } else if let Some(caps) = self.advancement_regex.captures(&line) {
+        } else if let Some(caps) = self.advancement_regex.captures(&line)  {
             let player_name = String::from(&caps[1]);
             return Some((
                 ChatMessage {
                     message_type: MessageType::ADVANCEMENT,
                     message_text: format!("{} has made the advancement {}", player_name, &caps[2]),
+                    player_name,
+                },
+                0,
+            ));
+        } else if let Some(caps) = self.goal_regex.captures(&line)  {
+            let player_name = String::from(&caps[1]);
+            return Some((
+                ChatMessage {
+                    message_type: MessageType::ADVANCEMENT,
+                    message_text: format!("{} has reached the goal {}", player_name, &caps[2]),
                     player_name,
                 },
                 0,

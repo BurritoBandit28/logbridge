@@ -7,6 +7,8 @@
 [16:13:35] [Server thread/INFO]: <Burrito_Bandit28> hellow world
 [16:31:03] [Server thread/INFO]: <Burrito_Bandit28> challenge
 [16:31:07] [Server thread/INFO]: [Burrito_Bandit28] challenge
+[11:30:11] [Server thread/INFO]: Burrito_Bandit28 has reached the goal [Sky's the Limit]
+[11:30:15] [Server thread/INFO]: Burrito_Bandit28 has reached the goal [The Next Generation]
 [16:34:15] [Server thread/INFO]: Burrito_Bandit28 was killed by [Intentional Game Design]
 [16:13:06] [Server thread/INFO]: Burrito_Bandit28 left the game
 [12:00:24.139] [Server thread/INFO]: Stopping server
